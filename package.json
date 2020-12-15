@@ -1,0 +1,70 @@
+{
+  "name": "speech-recognition-aws-polyfill",
+  "version": "0.1.1",
+  "description": "Polyfill for the SpeechRecognition browser API using AWS Transcribe",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack",
+    "prepublish": "npm run build",
+    "start": "webpack serve --config ./webpack.config.js --mode development"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ceuk/speech-recognition-aws-polyfill.git"
+  },
+  "keywords": [
+    "AWS",
+    "Transcribe",
+    "SpeechRecognition",
+    "Polyfill"
+  ],
+  "author": "CEUK <ceuk.dev@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ceuk/speech-recognition-aws-polyfill/issues"
+  },
+  "homepage": "https://github.com/ceuk/speech-recognition-aws-polyfill#readme",
+  "devDependencies": {
+    "@babel/core": "^7.12.10",
+    "@babel/plugin-transform-runtime": "^7.12.10",
+    "@babel/preset-env": "^7.12.10",
+    "@types/ramda": "^0.27.33",
+    "babel-loader": "^8.2.2",
+    "eslint": "^7.15.0",
+    "eslint-config-standard": "^16.0.2",
+    "eslint-plugin-immutable": "^1.0.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-no-loops": "^0.3.0",
+    "eslint-plugin-no-secrets": "^0.6.8",
+    "eslint-plugin-no-unsanitized": "^3.1.4",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-ramda": "^2.5.1",
+    "eslint-plugin-sonarjs": "^0.5.0",
+    "eslint-plugin-sort-keys-fix": "^1.1.1",
+    "eslint-plugin-standard": "^5.0.0",
+    "eslint-plugin-unicorn": "^23.0.0",
+    "eslint-plugin-xss": "^0.1.10",
+    "webpack": "^5.10.2",
+    "webpack-cli": "^4.2.0",
+    "webpack-dev-server": "^3.11.0"
+  },
+  "dependencies": {
+    "@aws-sdk/eventstream-marshaller": "^1.0.0-rc.10",
+    "@aws-sdk/util-utf8-node": "^1.0.0-rc.8",
+    "@babel/runtime": "^7.12.5",
+    "aws-sdk": "^2.810.0",
+    "buffer": "^6.0.3",
+    "crypto-browserify": "^3.12.0",
+    "get-user-media-promise": "^1.1.4",
+    "microphone-stream": "^5.1.0",
+    "process": "^0.11.10",
+    "query-string": "^6.13.7",
+    "ramda": "^0.27.1",
+    "ramda-async": "^0.2.1",
+    "stream-browserify": "^3.0.0",
+    "util": "^0.12.3",
+    "webcrypto": "^0.1.1"
+  }
+}
