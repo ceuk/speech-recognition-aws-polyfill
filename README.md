@@ -71,6 +71,15 @@ Finally, there are two static properties that may be useful:
 
 `type`: either 'BROWSER' or 'AWS' depending on which method is being used. The library will try to use browser first and fall back to AWS if needed.
 
-## Contributing
+## Roadmap
+
+* Build a companion polyfill for speech synthesis (TTS) using AWS Polly
+* Provide a way to output the transcription as an RxJS observable
+
+## Contributing and Bugs
 
 Questions, comments and contributions are very welcome. Just raise an Issue/PR (or, check out the fancy new [Github Discussions](https://github.com/ceuk/speech-recognition-aws-polyfill/discussions) feature)
+
+## License
+
+MIT
