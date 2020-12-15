@@ -3,6 +3,7 @@ speech-recognition-aws-polyfill
 
 ![package size](https://img.shields.io/bundlephobia/min/base-ui)
 ![vulnerabilities](https://img.shields.io/snyk/vulnerabilities/npm/speech-recognition-aws-polyfill)
+![](https://img.shields.io/npm/v/speech-recognition-aws-polyfill)
 
 A [polyfill](https://remysharp.com/2010/10/08/what-is-a-polyfill) for the experimental browser [Speech Recognition API](https://developer.mozilla.org/en-US/docs/Web/API/SpeechRecognition) which falls back to [AWS Transcribe](https://aws.amazon.com/transcribe/).
 
