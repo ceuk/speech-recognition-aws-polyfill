@@ -14,6 +14,14 @@ A [polyfill](https://remysharp.com/2010/10/08/what-is-a-polyfill) for the experi
 
 **Note:** this is not a polyfill for [`MediaDevices.getUserMedia()`](https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia) - check the support table in the link above.
 
+## Who is it for?
+
+A polyfill already exists at [/antelow/speech-polyfill](https://github.com/anteloe/speech-polyfill), which uses [Azure Cognitive Services](https://azure.microsoft.com/en-gb/services/cognitive-services/) as a fallback.
+
+This Library is a good fit if you are already using AWS services (or you would just prefer to use AWS).
+
+The Azure version also seems to have gone stale with no updates for ~2 years so this library is perhaps also a better choice if you're looking for something a little more production ready.
+
 ## Prerequisites
 
 * An AWS account
