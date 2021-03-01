@@ -1,10 +1,12 @@
 import './lib/bufferPolyfill'
 import AWSRecognizer from './recognizers/aws'
-import BrowserRecognizer from './recognizers/browser'
 
-const recognizer = BrowserRecognizer.isSupported
+const BrowserRecognizer = window.SpeechRecognition
+
+const recognizer = BrowserRecognizer && new BrowserRecognizer()
   ? BrowserRecognizer
   : AWSRecognizer
 
+//@ts-ignore
 window.SpeechRecognitionPolyfill = recognizer
 export default recognizer

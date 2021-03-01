@@ -1,17 +1,18 @@
-import { adjust, divide, sum, ifElse, propEq, pipe, prop, map, append, propSatisfies, prepend, __, reduce, addIndex, construct, multiply } from 'ramda'
+import { adjust, divide, sum, ifElse, propEq, prop, map, append, prepend, __, reduce, addIndex, construct, multiply } from 'ramda'
+import { createPipe, pipe } from 'remeda'
 
 const reduceIdx = addIndex(reduce)
 
 // createDataView :: buffer -> int -> int -> buffer -> DataView
-const createDataView = pipe(
-  prop('length'),
+const createDataView = createPipe(
+  (buf: Buffer) => buf.length,
   multiply(2),
   construct(ArrayBuffer),
   construct(DataView)
 )
 
 // pcmEncode :: buffer -> buffer
-export function pcmEncode (input) {
+export function pcmEncode (input: Buffer) {
   const view = createDataView(input)
   // Using recursion would be cleaner but much more computationally
   // expensive until TCO is properly implemented in ECMAScript
@@ -23,8 +24,8 @@ export function pcmEncode (input) {
   return view.buffer
 }
 
-// downsampleBuffer :: {buffer, outputSampleRate} -> buffer
-export const downsampleBuffer = ({ buffer, outputSampleRate = 16000 }) => {
+interface DownsampleBufferArgs { buffer: Uint8Array, outputSampleRate: number }
+export const downsampleBuffer = ({ buffer, outputSampleRate = 16000 }: DownsampleBufferArgs) => {
   const ratio = 44100 / outputSampleRate
   return ifElse(
     // if
@@ -32,25 +33,24 @@ export const downsampleBuffer = ({ buffer, outputSampleRate = 16000 }) => {
     // then
     prop('buffer'),
     // else
-    pipe(
+    createPipe(
       prop('buffer'),
-      reduceIdx((acc, val, i) =>
+      reduceIdx((acc: any, val, i) =>
         pipe(
+          ratio,
           divide(i + 0.1),
           Math.floor,
-          ifElse(
-            propSatisfies(Array.isArray, __, acc),
-            adjust(
-              __,
-              prepend(val),
-              acc
-            ),
-            () => append([val], acc)
-          )
-        )(ratio),
+          (number: number) => Array.isArray(acc[number])
+            ? adjust(
+                number,
+                prepend(val),
+                acc
+              )
+            : () => append([val], acc)
+        ),
       []
       ),
-      map(values => sum(values) / values.length)
+      map((values: number[]) => sum(values) / values.length)
     )
   )({ buffer, outputSampleRate })
 }

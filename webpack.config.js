@@ -6,18 +6,18 @@ module.exports = [
   'source-map'
 ].map(devtool => ({
   mode: 'development',
-  entry: './src/index.js',
+  entry: './src/index.ts',
   module: {
     rules: [
       {
-        test: /\.(js)$/,
-        exclude: /node_modules/,
-        use: ['babel-loader']
+        test: /\.ts$/,
+        use: 'ts-loader',
+        exclude: /node_modules/
       }
     ]
   },
   resolve: {
-    extensions: ['*', '.js'],
+    extensions: ['*', '.ts', '.js'],
     fallback: {
       util: require.resolve('util/'),
       stream: require.resolve('stream-browserify'),

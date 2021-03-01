@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",
+    "target": "es5",
+    "declaration": true,
+    "stripInternal": true,
+
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noImplicitAny": true,
+    "allowJs": true,
+
+    "moduleResolution": "node",
+    "baseUrl": ".",
+
+    "sourceRoot": ".",
+    "sourceMap": true,
+
+    "esModuleInterop": true,
+    "strictNullChecks": true,
+    "allowSyntheticDefaultImports": true,
+    "strictPropertyInitialization": false,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": [
+    "src",
+    "test"
+  ]
+}

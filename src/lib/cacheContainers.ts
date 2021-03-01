@@ -1,9 +1,13 @@
 /* global WebSocket */
 /* eslint-disable immutable/no-this */
 import MicrophoneStream from 'microphone-stream'
+import ReadableStream from '../types/microphone-stream'
 
-class CConnection {
-  of (url) {
+class Connection {
+  connection: WebSocket
+  url: string
+
+  of (url: string) {
     const { connection } = this
     this.connection = connection && connection.readyState === 1
       ? connection
@@ -15,15 +19,18 @@ class CConnection {
     return this.connection
   }
 
-  map (f) {
+  map (f: (s: string) => string) {
     this.connection?.close()
     this.connection = new WebSocket(f(this.url))
     return this
   }
 }
 
-class CMicStream {
-  of (stream) {
+class MicStream {
+  stream: MediaStream
+  micStream: ReadableStream
+
+  of (stream: MediaStream) {
     const { micStream } = this
     this.stream = stream
     this.micStream = micStream || new MicrophoneStream()
@@ -35,16 +42,18 @@ class CMicStream {
     return this.micStream
   }
 
-  map (f) {
+  map (f: (s: MediaStream) => MediaStream) {
     this.micStream.setStream(f(this.stream))
     return this
   }
 }
 
-const Connection = new CConnection()
-const MicStream = new CMicStream()
+const connectionInstance = new Connection()
+const streamInstance = new MicStream()
 
 export {
   Connection,
-  MicStream
+  MicStream,
+  connectionInstance,
+  streamInstance
 }

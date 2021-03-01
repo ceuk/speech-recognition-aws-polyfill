@@ -3,29 +3,51 @@
 import crypto from 'crypto-browserify'
 import querystring from 'query-string'
 
-export const createCanonicalQueryString = function (params) {
+interface Params {
+  [key: string]: any
+}
+
+interface Headers {
+  [key: string]: any
+}
+
+interface AWSOptions {
+  bucket?: string
+  method?: string
+  protocol?: string
+  headers?: Headers
+  timestamp?: number
+  region?: string
+  expires?: number
+  query: string
+  key: string
+  sessionToken?: string
+  secret: string 
+}
+
+export const createCanonicalQueryString = function (params: Params) {
   return Object.keys(params).sort().map(function (key) {
     return encodeURIComponent(key) + '=' + encodeURIComponent(params[key])
   }).join('&')
 }
 
-export const createCanonicalHeaders = function (headers) {
+export const createCanonicalHeaders = function (headers: Headers) {
   return Object.keys(headers).sort().map(function (name) {
     return name.toLowerCase().trim() + ':' + headers[name].toString().trim() + '\n'
   }).join('')
 }
 
-export const createSignedHeaders = function (headers) {
+export const createSignedHeaders = function (headers: Headers) {
   return Object.keys(headers).sort().map(function (name) {
     return name.toLowerCase().trim()
   }).join(';')
 }
 
-export const createCredentialScope = function (time, region, service) {
+export const createCredentialScope = function (time: number, region: string, service: string) {
   return [toDate(time), region, service, 'aws4_request'].join('/')
 }
 
-export const createStringToSign = function (time, region, service, request) {
+export const createStringToSign = function (time: number, region: string, service: string, request: string) {
   return [
     'AWS4-HMAC-SHA256',
     toTime(time),
@@ -34,7 +56,7 @@ export const createStringToSign = function (time, region, service, request) {
   ].join('\n')
 }
 
-export const createSignature = function (secret, time, region, service, stringToSign) {
+export const createSignature = function (secret: string, time: number, region: string, service: string, stringToSign: string) {
   const h1 = hmac('AWS4' + secret, toDate(time)) // date-key
   const h2 = hmac(h1, region) // region-key
   const h3 = hmac(h2, service) // service-key
@@ -42,8 +64,9 @@ export const createSignature = function (secret, time, region, service, stringTo
   return hmac(h4, stringToSign, 'hex')
 }
 
-export const createPresignedS3URL = function (name, options = {}) {
-  options.method = options.method || 'GET'
+export const createPresignedS3URL = function (name: string, options: AWSOptions) {
+  if (!options?.bucket) throw new Error('S3 Bucket not provided')
+    options.method = options.method || 'GET'
   return createPresignedURL(
     options.method,
     options.bucket + '.s3.amazonaws.com',
@@ -54,7 +77,7 @@ export const createPresignedS3URL = function (name, options = {}) {
   )
 }
 
-export const createCanonicalRequest = function (method, pathname, query, headers, payload) {
+export const createCanonicalRequest = function (method: string, pathname: string, query: Params, headers: Headers, payload: unknown) {
   return [
     method.toUpperCase(),
     pathname,
@@ -65,7 +88,7 @@ export const createCanonicalRequest = function (method, pathname, query, headers
   ].join('\n')
 }
 
-export const createPresignedURL = function (method, host, path, service, payload, options = {}) {
+export const createPresignedURL = function (method: string, host: string, path: string, service: string, payload: unknown, options: AWSOptions) {
   options.protocol = options.protocol || 'https'
   options.headers = options.headers || {}
   options.timestamp = options.timestamp || Date.now()
@@ -80,7 +103,7 @@ export const createPresignedURL = function (method, host, path, service, payload
   query['X-Amz-Algorithm'] = 'AWS4-HMAC-SHA256'
   query['X-Amz-Credential'] = options.key + '/' + createCredentialScope(options.timestamp, options.region, service)
   query['X-Amz-Date'] = toTime(options.timestamp)
-  query['X-Amz-Expires'] = options.expires
+  query['X-Amz-Expires'] = String(options.expires)
   query['X-Amz-SignedHeaders'] = createSignedHeaders(options.headers)
   if (options.sessionToken) {
     query['X-Amz-Security-Token'] = options.sessionToken
@@ -93,23 +116,23 @@ export const createPresignedURL = function (method, host, path, service, payload
   return options.protocol + '://' + host + path + '?' + querystring.stringify(query)
 }
 
-function toTime (time) {
+function toTime (time: number) {
   // eslint-disable-next-line no-useless-escape
   return new Date(time).toISOString().replace(/[:\-]|\.\d{3}/g, '')
 }
 
-function toDate (time) {
+function toDate (time: number) {
   return toTime(time).slice(0, 8)
 }
 
-function hmac (key, string, encoding) {
+function hmac (key: string, string: string, encoding?: string) {
   return crypto.createHmac('sha256', key)
-    .update(string, 'utf8')
-    .digest(encoding)
+  .update(string, 'utf8')
+  .digest(encoding)
 }
 
-function hash (string, encoding) {
+function hash (string: string, encoding?: string) {
   return crypto.createHash('sha256')
-    .update(string, 'utf8')
-    .digest(encoding)
+  .update(string, 'utf8')
+  .digest(encoding)
 }
