@@ -62,8 +62,70 @@ const recognition = new SpeechRecognitionPolyfill({
 ```
 
 You can then interact with `recognition` the same as you would with an instance of [`window.SpeechRecognition`](https://developer.mozilla.org/en-US/docs/Web/API/SpeechRecognition)
-```javascript
+
 The recognizer will stop capturing if it doesn't detect speech for a period. You can also stop manually with the `stop()` method.
+
+## Support Table
+
+### Properties
+
+| Property          | Supported |
+|-------------------|-----------|
+| `lang`            |    Yes    |
+| `grammars`        |     No    |
+| `continuous`      |     No    |
+| `interimResults`  |     No    |
+| `maxAlternatives` |     No    |
+| `serviceURI`      |     No    |
+
+### Methods
+
+| Method            | Supported |
+|-------------------|-----------|
+| `abort`           |    Yes    |
+| `start`           |    Yes    |
+| `stop`            |    Yes    |
+
+### Events
+
+| Events        | Supported |
+|---------------|-----------|
+| `audiostart`  |    Yes    |
+| `audioend`    |    Yes    |
+| `start`       |    Yes    |
+| `end`         |    Yes    |
+| `error`       |    Yes    |
+| `nomatch`     |    Yes    |
+| `result`      |    Yes    |
+| `soundstart`  |  Partial  |
+| `soundend`    |  Partial  |
+| `speechstart` |  Partial  |
+| `speechend`   |  Partial  |
+
+
+## Full Example
+
+```javascript
+import SpeechRecognitionPolyfill from 'speech-recognition-aws-polyfill'
+
+const recognition = new SpeechRecognitionPolyfill({
+  IdentityPoolId: 'eu-west-1:11111111-1111-1111-1111-1111111111', // your Identity Pool ID
+  region: 'eu-west-1' // your AWS region
+})
+recognition.lang = 'en-US'; // add this to the config above instead if you want
+
+document.body.onclick = function() {
+  recognition.start();
+  console.log('Listening');
+}
+
+recognition.onresult = function(event) {
+  const { transcript } = event.results[0][0]
+  console.log('Heard: ', transcript)
+}
+
+recognition.onerror = console.error
+```
 
 ## Roadmap
 
