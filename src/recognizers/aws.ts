@@ -18,7 +18,6 @@ class AWSRecognizer extends CustomEventTarget {
   stream?: MediaStream
   listening: boolean = false
 
-
   static get isSupported () {
     return !!navigator?.mediaDevices?.getUserMedia
   }
@@ -31,9 +30,11 @@ class AWSRecognizer extends CustomEventTarget {
     super()
     if (!config.IdentityPoolId || !config.region) throw new Error('Could not create AWS recognizer: missing configuration, see: https://github.com/ceuk/speech-recognition-aws-polyfill#configuration')
     const defaults = {
-      sampleRate: 12000
+      sampleRate: 12000,
+      lang: 'en-US'
     }
     this.config = Object.assign(defaults, config)
+    this.lang = this.config.lang
   }
 
   start() {
@@ -69,12 +70,22 @@ class AWSRecognizer extends CustomEventTarget {
     this.dispatchEvent(new Event('audioend'))
   }
 
+  set lang(lang:Config['lang']) {
+    this.lang = lang
+    this.config.lang = lang
+  }
+
   private emitResult(transcript: string) {
     if (transcript && transcript.length > 1) {
       this.dispatchEvent(new AWSSpeechRecognitionEvent('result',
-        [[
-          { transcript }
-        ]]
+        [{
+          0: { 
+            transcript,
+            confidence: 1
+          },
+          // TODO make this dynamic
+          isFinal: true
+        }]
       ))
     } else {
       this.dispatchEvent(new Event('nomatch'))
@@ -98,9 +109,9 @@ class AWSRecognizer extends CustomEventTarget {
   }
 
   private async transcribe () {
-    const { IdentityPoolId, region, sampleRate } = this.config
+    const { IdentityPoolId, region, sampleRate, lang } = this.config
     const credentials = await getCredentials({ IdentityPoolId, region }) as Credentials
-    const url = getSignedURL({ IdentityPoolId, region, sampleRate, credentials })
+    const url = getSignedURL({ IdentityPoolId, region, sampleRate, credentials, lang })
     const connection = connectionInstance.of(url).$value
     if (this.stream && connection instanceof WebSocket) {
       try {
@@ -111,6 +122,39 @@ class AWSRecognizer extends CustomEventTarget {
         this.emitError(err)
       }
     }
+  }
+
+  // stub some props
+  set continous(_) {
+    console.warn('`continous` is not yet implemented in the AWS polyfill')
+  }
+
+  get continous() {
+    return false
+  }
+
+  set interimResults(_) {
+    console.warn('`continous` is not yet implemented in the AWS polyfill')
+  }
+
+  get interimResults() {
+    return false
+  }
+
+  set maxAlternatives(_) {
+    console.warn('`maxAlternatives` is not yet implemented in the AWS polyfill')
+  }
+
+  get maxAlternatives() {
+    return 1
+  }
+
+  set grammars(_) {
+    console.warn('`grammars` is not yet implemented in the AWS polyfill')
+  }
+
+  get grammars() {
+    return {}
   }
 
   // proxy event listeners

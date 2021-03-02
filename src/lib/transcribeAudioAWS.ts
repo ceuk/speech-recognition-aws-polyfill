@@ -34,7 +34,7 @@ interface GetSignedURLArgs extends Config { credentials: Credentials }
 type GetSignedURL = (args: GetSignedURLArgs) => string
 export const getSignedURL: GetSignedURL = createPipe(
   assocBy<GetSignedURLArgs, string>('endpoint', transcribeEndpoint),
-  ({ endpoint, credentials, region, sampleRate }) =>
+  ({ endpoint, credentials, region, sampleRate, lang }) =>
     createPresignedURL(
       'GET',
       endpoint,
@@ -49,7 +49,7 @@ export const getSignedURL: GetSignedURL = createPipe(
         protocol: 'wss',
         expires: 15,
         region,
-        query: `language-code=en-GB&media-encoding=pcm&sample-rate=${sampleRate}`
+        query: `language-code=${lang}&media-encoding=pcm&sample-rate=${sampleRate}`
       }
     )
 )

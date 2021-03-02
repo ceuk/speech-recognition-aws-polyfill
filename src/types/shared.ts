@@ -2,10 +2,14 @@ export interface Config {
   IdentityPoolId: string
   region: string,
   sampleRate?: number
+  lang?: 'en-GB' | 'en-US' | 'fr-CA' | 'fr-FR' | 'de-De' | 'ja-JP' | 'ko-KR' | 'pt-BR' | 'it-IT'
 }
 
 export interface AWSSpeechRecognitionResults {
-  [index: number]: {transcript: string }[]
+  [index: number]: {
+    [index: number]: {transcript: string, confidence: number }
+    isFinal: boolean
+  }
 }
 
 export class AWSSpeechRecognitionEvent {
