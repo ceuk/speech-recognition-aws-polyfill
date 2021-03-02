@@ -2,12 +2,12 @@
 import { streamInstance } from './cacheContainers'
 import { assoc, ifElse, pathEq, when, construct, tap, propSatisfies, pathSatisfies, not } from 'ramda'
 import { pipe, createPipe, prop, allPass } from 'remeda'
+import { Buffer } from 'buffer/'
 import { toRaw } from 'microphone-stream'
 import { downsampleBuffer, pcmEncode } from './audioUtils'
 import { toUtf8, fromUtf8 } from '@aws-sdk/util-utf8-node'
 import { EventStreamMarshaller } from '@aws-sdk/eventstream-marshaller'
 import { createPresignedURL } from './awsV4'
-import ab2b from 'arraybuffer-to-buffer'
 import crypto from 'webcrypto'
 import { AWSTranscribeResponse, Config } from '../types/shared'
 import ReadableStream from '../types/microphone-stream'
@@ -132,9 +132,10 @@ function convertAudioToBinaryMessage ({ audioChunk, sampleRate }: ConvertAudioTo
     when<Uint8Array, Uint8Array>(Boolean, createPipe(
       toRaw,
       // downsample and convert the raw audio bytes to PCM
-      (buffer: Uint8Array) => downsampleBuffer({ buffer, outputSampleRate: sampleRate }),
+      (buffer: Float32Array) => downsampleBuffer({ buffer, outputSampleRate: sampleRate }),
       pcmEncode,
-      ab2b,
+      // @ts-ignore
+      Buffer,
       // add the right JSON headers and structure to the message
       getAudioEventMessage,
       // convert the JSON object + headers into a binary event stream message
@@ -152,8 +153,8 @@ const handleEventStreamMessage: HandleEventStreamMessage = (resolve) => createPi
         pathSatisfies((x: number) => x > 0, [0, 'Alternatives', 'length']),
         pathSatisfies(not, [0, 'IsPartial'])
       ]),
-      (body:AWSTranscribeResponse['Transcript']['Results']) => pipe(
-        body[0].Alternatives[0].Transcript,
+      (results:AWSTranscribeResponse['Transcript']['Results']) => pipe(
+        results[0].Alternatives[0].Transcript,
         // fix encoding for accented characters
         escape,
         decodeURIComponent,

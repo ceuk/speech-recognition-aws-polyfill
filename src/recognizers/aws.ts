@@ -1,20 +1,21 @@
 /* eslint-disable immutable/no-this */
-import { connectionInstance } from '../lib/cacheContainers'
-import Maybe, {nothing} from '@versita/fp-lib/maybe'
+import { connectionInstance, streamInstance } from '../lib/cacheContainers'
 import { getCredentials, getSignedURL, streamAudioToWebSocket } from '../lib/transcribeAudioAWS'
-import { AWSSpeechRecognitionEvent, Config, Listener } from '../types/shared'
+import { Config, AWSSpeechRecognitionEvent, ListenerCallback } from '../types/shared'
 import {Credentials} from 'aws-sdk'
-import { DelegatedEventTarget } from '../lib/delegatedEventTarget'
+import { CustomEventTarget } from '../lib/customEventTarget'
 
 
-function stopStream(stream:MediaStream) {
+function stopStream(stream?:MediaStream) {
+  if (!stream) return
   stream.getTracks().forEach(track => track.stop())
+  streamInstance.stop()
   return stream
 }
 
-class AWSRecognizer extends DelegatedEventTarget {
+class AWSRecognizer extends CustomEventTarget {
   config: Config
-  stream: Maybe<MediaStream>
+  stream?: MediaStream
   listening: boolean = false
 
 
@@ -40,13 +41,13 @@ class AWSRecognizer extends DelegatedEventTarget {
     this.dispatchEvent(new Event('start'))
     navigator.mediaDevices.getUserMedia({ audio: true, video: false })
       .then((stream) => {
-        this.stream = Maybe.of(stream)
+        this.stream = stream
         this.listening = true
         this.dispatchEvent(new Event('audiostart'))
         this.transcribe()
       })
       .catch(err => {
-        this.stream = nothing()
+        this.stream = undefined
         this.listening = false
         this.emitError(err)
       });
@@ -54,28 +55,27 @@ class AWSRecognizer extends DelegatedEventTarget {
 
   abort() {
     if (this.listening) {
-      this.stream.map(stopStream)
+      stopStream(this.stream)
+      connectionInstance.close()
       this.listening = false
       this.dispatchEvent(new Event('audioend'))
     }
   }
 
   stop() {
-    if (this.listening) {
-      this.stream.map(stopStream)
-      this.handleStop()
-      this.listening = false
-      this.dispatchEvent(new Event('audioend'))
-    }
+    stopStream(this.stream)
+    connectionInstance.close()
+    this.listening = false
+    this.dispatchEvent(new Event('audioend'))
   }
 
   private emitResult(transcript: string) {
     if (transcript && transcript.length > 1) {
-      this.dispatchEvent(new AWSSpeechRecognitionEvent('result', {
-        results: [[
+      this.dispatchEvent(new AWSSpeechRecognitionEvent('result',
+        [[
           { transcript }
         ]]
-      }) as SpeechRecognitionEvent)
+      ))
     } else {
       this.dispatchEvent(new Event('nomatch'))
     }
@@ -83,6 +83,7 @@ class AWSRecognizer extends DelegatedEventTarget {
   }
 
   private emitError(error: Error) {
+    this.stop()
     this.dispatchEvent(new ErrorEvent('error', error))
   }
 
@@ -101,9 +102,9 @@ class AWSRecognizer extends DelegatedEventTarget {
     const credentials = await getCredentials({ IdentityPoolId, region }) as Credentials
     const url = getSignedURL({ IdentityPoolId, region, sampleRate, credentials })
     const connection = connectionInstance.of(url).$value
-    if (this.stream.isJust()) {
+    if (this.stream && connection instanceof WebSocket) {
       try {
-        const transcript = await streamAudioToWebSocket({ stream: this.stream.unsafelyGet(), socket: connection, sampleRate: this.config.sampleRate || 1200, emitSoundStart: this.emitSoundStart.bind(this), emitSoundEnd: this.emitSoundEnd.bind(this) })
+        const transcript = await streamAudioToWebSocket({ stream: this.stream, socket: connection, sampleRate: this.config.sampleRate || 1200, emitSoundStart: this.emitSoundStart.bind(this), emitSoundEnd: this.emitSoundEnd.bind(this) })
         this.emitResult(transcript)
         this.stop()
       } catch (err) {
@@ -112,54 +113,49 @@ class AWSRecognizer extends DelegatedEventTarget {
     }
   }
 
-  private handleStop() {
-    if (this.listening) {
-    }
-  }
-
   // proxy event listeners
-  onaudiostart(listener: Listener): void {
-    return this.addEventListener('audiostart', listener)
+  set onaudiostart(fn: ListenerCallback) {
+    this.addEventListener('audiostart', fn)
   }
   
-  onaudioend(listener: Listener): void {
-    return this.addEventListener('audioend', listener)
+  set onaudioend(fn: ListenerCallback) {
+    this.addEventListener('audioend', fn)
   }
 
-  onend(listener: Listener): void {
-    return this.addEventListener('end', listener)
+  set onend(fn: ListenerCallback) {
+    this.addEventListener('end', fn)
   }
 
-  onerror(listener: Listener): void {
-    return this.addEventListener('error', listener)
+  set onerror(fn: ListenerCallback) {
+    this.addEventListener('error', fn)
   }
 
-  onnomatch(listener: Listener): void {
-    return this.addEventListener('nomatch', listener)
+  set onnomatch(fn: ListenerCallback) {
+    this.addEventListener('nomatch', fn)
   }
 
-  onresult(listener: Listener): void {
-    return this.addEventListener('result', listener)
+  set onresult(fn: ListenerCallback) {
+    this.addEventListener('result', fn)
   }
 
-  onsoundstart(listener: Listener): void {
-    return this.addEventListener('soundstart', listener)
+  set onsoundstart(fn: ListenerCallback) {
+    this.addEventListener('soundstart', fn)
   }
 
-  onsoundend(listener: Listener): void {
-    return this.addEventListener('soundend', listener)
+  set onsoundend(fn: ListenerCallback) {
+    this.addEventListener('soundend', fn)
   }
 
-  onspeechstart(listener: Listener): void {
-    return this.addEventListener('speechstart', listener)
+  set onspeechstart(fn: ListenerCallback) {
+    this.addEventListener('speechstart', fn)
   }
 
-  onspeechend(listener: Listener): void {
-    return this.addEventListener('speechend', listener)
+  set onspeechend(fn: ListenerCallback) {
+    this.addEventListener('speechend', fn)
   }
 
-  onstart(listener: Listener): void {
-    return this.addEventListener('start', listener)
+  set onstart(fn: ListenerCallback) {
+    this.addEventListener('start', fn)
   }
 }
 

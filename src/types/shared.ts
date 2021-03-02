@@ -4,17 +4,26 @@ export interface Config {
   sampleRate?: number
 }
 
-export interface AWSSpeechRecognitionEventInit extends EventInit {
-  results: { transcript: string }[][]
+export interface AWSSpeechRecognitionResults {
+  [index: number]: {transcript: string }[]
 }
 
-export class AWSSpeechRecognitionEvent extends Event {
-  constructor(type: string, eventInitDict: AWSSpeechRecognitionEventInit ) {
-    super(type, eventInitDict)
+export class AWSSpeechRecognitionEvent {
+  type: string
+  results: AWSSpeechRecognitionResults
+  defaultPrevented: boolean = false
+
+  constructor(type: string, results: AWSSpeechRecognitionResults ) {
+    this.type = type
+    this.results = results
   }
 }
 
 export type Listener = EventListener | EventListenerObject | null
+export interface Listeners {
+  [type: string]: ListenerCallback[]
+}
+export type ListenerCallback = (e?: Event | AWSSpeechRecognitionEvent) => void
 
 export interface AWSTranscribeResponse {
   Transcript: {
