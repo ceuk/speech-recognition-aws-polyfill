@@ -1,6 +1,6 @@
 {
   "name": "speech-recognition-aws-polyfill",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "Polyfill for the SpeechRecognition browser API using AWS Transcribe",
   "main": "dist/index.js",
   "scripts": {
