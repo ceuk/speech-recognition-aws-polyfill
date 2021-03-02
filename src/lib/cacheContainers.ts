@@ -4,7 +4,7 @@ import MicrophoneStream from 'microphone-stream'
 import ReadableStream from '../types/microphone-stream'
 
 class Connection {
-  connection: WebSocket
+  connection?: WebSocket
   url: string
 
   of (url: string) {
@@ -19,6 +19,11 @@ class Connection {
     return this.connection
   }
 
+  close() {
+    this.connection?.close()
+    this.connection = undefined
+  }
+
   map (f: (s: string) => string) {
     this.connection?.close()
     this.connection = new WebSocket(f(this.url))
@@ -29,11 +34,13 @@ class Connection {
 class MicStream {
   stream: MediaStream
   micStream: ReadableStream
+  done: boolean = false
 
   of (stream: MediaStream) {
     const { micStream } = this
     this.stream = stream
-    this.micStream = micStream || new MicrophoneStream()
+    this.micStream = micStream && !this.done ? micStream : new MicrophoneStream()
+    this.done = false
     this.micStream.setStream(stream)
     return this
   }
@@ -42,8 +49,14 @@ class MicStream {
     return this.micStream
   }
 
+  stop() {
+    this.micStream?.stop()
+    this.done = true
+  }
+
   map (f: (s: MediaStream) => MediaStream) {
     this.micStream.setStream(f(this.stream))
+    this.done = false
     return this
   }
 }
