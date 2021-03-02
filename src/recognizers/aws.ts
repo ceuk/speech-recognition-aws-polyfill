@@ -17,6 +17,7 @@ class AWSRecognizer extends CustomEventTarget {
   config: Config
   stream?: MediaStream
   listening: boolean = false
+  lang: Config['lang']
 
   static get isSupported () {
     return !!navigator?.mediaDevices?.getUserMedia
@@ -70,11 +71,6 @@ class AWSRecognizer extends CustomEventTarget {
     this.dispatchEvent(new Event('audioend'))
   }
 
-  set lang(lang:Config['lang']) {
-    this.lang = lang
-    this.config.lang = lang
-  }
-
   private emitResult(transcript: string) {
     if (transcript && transcript.length > 1) {
       this.dispatchEvent(new AWSSpeechRecognitionEvent('result',
@@ -109,7 +105,8 @@ class AWSRecognizer extends CustomEventTarget {
   }
 
   private async transcribe () {
-    const { IdentityPoolId, region, sampleRate, lang } = this.config
+    const { IdentityPoolId, region, sampleRate } = this.config
+    const { lang } = this
     const credentials = await getCredentials({ IdentityPoolId, region }) as Credentials
     const url = getSignedURL({ IdentityPoolId, region, sampleRate, credentials, lang })
     const connection = connectionInstance.of(url).$value
