@@ -50,8 +50,10 @@ class MicStream {
   }
 
   stop() {
-    this.micStream?.stop()
-    this.done = true
+    if (this.micStream.readable) {
+      this.micStream.stop()
+      this.done = true
+    }
   }
 
   map (f: (s: MediaStream) => MediaStream) {
