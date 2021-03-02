@@ -55,32 +55,19 @@ Or use from the unpkg CDN:
 Create a new instance of the polyfill:
 
 ```javascript
-const recognizer = new SpeechRecognitionPolyfill({
+const recognition = new SpeechRecognitionPolyfill({
   IdentityPoolId: 'eu-west-1:11111111-1111-1111-1111-1111111111', // your Identity Pool ID
   region: 'eu-west-1' // your AWS region
 })
 ```
 
-Start "listening" with `start()` then transcribe any detected speech with `transcribe()`:
-
+You can then interact with `recognition` the same as you would with an instance of [`window.SpeechRecognition`](https://developer.mozilla.org/en-US/docs/Web/API/SpeechRecognition)
 ```javascript
-try {
-  await recognizer.start()
-  const words = await recognizer.transcribe()
-} catch (err) {
-  console.error(err)
-}
-```
 The recognizer will stop capturing if it doesn't detect speech for a period. You can also stop manually with the `stop()` method.
-
-Finally, there are two static properties that may be useful:
-
-`isSupported`: This will be false if neither speech recognition methods are supported by the browser (meaning you will be unable to perform any STT and should disable it for this user)
-
-`type`: either 'BROWSER' or 'AWS' depending on which method is being used. The library will try to use browser first and fall back to AWS if needed.
 
 ## Roadmap
 
+* Further increase parity between the two implementations by better supporting additional options and events.
 * Build a companion polyfill for speech synthesis (TTS) using AWS Polly
 * Provide a way to output the transcription as an RxJS observable
 
