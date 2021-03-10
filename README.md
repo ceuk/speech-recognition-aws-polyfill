@@ -61,6 +61,17 @@ const recognition = new SpeechRecognitionPolyfill({
 })
 ```
 
+Alternatively, use the `create` method.
+
+```javascript
+const SpeechRecognition = SpeechRecognititionPolyfill.create({
+  IdentityPoolId: 'eu-west-1:11111111-1111-1111-1111-1111111111', // your Identity Pool ID
+  region: "eu-west-1"
+});
+
+const recognition = new SpeechRecognition()
+```
+
 You can then interact with `recognition` the same as you would with an instance of [`window.SpeechRecognition`](https://developer.mozilla.org/en-US/docs/Web/API/SpeechRecognition)
 
 The recognizer will stop capturing if it doesn't detect speech for a period. You can also stop manually with the `stop()` method.

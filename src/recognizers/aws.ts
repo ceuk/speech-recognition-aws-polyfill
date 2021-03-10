@@ -27,6 +27,10 @@ class AWSRecognizer extends CustomEventTarget {
     return 'AWS'
   }
 
+  static create (config: Config) {
+    () => new AWSRecognizer(config)
+  }
+
   constructor (config: Config) {
     super()
     if (!config.IdentityPoolId || !config.region) throw new Error('Could not create AWS recognizer: missing configuration, see: https://github.com/ceuk/speech-recognition-aws-polyfill#configuration')
@@ -37,6 +41,7 @@ class AWSRecognizer extends CustomEventTarget {
     this.config = Object.assign(defaults, config)
     this.lang = this.config.lang
   }
+
 
   start() {
     if (this.listening) return
