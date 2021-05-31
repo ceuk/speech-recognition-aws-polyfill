@@ -2,6 +2,7 @@ import './lib/bufferPolyfill'
 import AWSRecognizer from './recognizers/aws'
 
 const w = window || {}
+console.log("HELLO")
 
 //@ts-ignore
 const BrowserRecognizer = w.SpeechRecognition || w.webkitSpeechRecognition

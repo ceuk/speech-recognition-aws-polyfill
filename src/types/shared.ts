@@ -1,13 +1,14 @@
 export interface Config {
   IdentityPoolId: string
-  region: string,
-  sampleRate?: number
-  lang?: 'en-GB' | 'en-US' | 'fr-CA' | 'fr-FR' | 'de-De' | 'ja-JP' | 'ko-KR' | 'pt-BR' | 'it-IT'
+  region: string
+  continuous: boolean
+  lang: 'en-GB' | 'en-US' | 'fr-CA' | 'fr-FR' | 'de-De' | 'ja-JP' | 'ko-KR' | 'pt-BR' | 'it-IT'
+  sampleRate: number
 }
 
 export interface AWSSpeechRecognitionResults {
   [index: number]: {
-    [index: number]: {transcript: string, confidence: number }
+    [index: number]: {transcript: string, confidence: number}
     isFinal: boolean
   }
 }
@@ -17,7 +18,7 @@ export class AWSSpeechRecognitionEvent {
   results: AWSSpeechRecognitionResults
   defaultPrevented: boolean = false
 
-  constructor(type: string, results: AWSSpeechRecognitionResults ) {
+  constructor(type: string, results: AWSSpeechRecognitionResults) {
     this.type = type
     this.results = results
   }
@@ -30,9 +31,10 @@ export interface Listeners {
 export type ListenerCallback = (e?: Event | AWSSpeechRecognitionEvent) => void
 
 export interface AWSTranscribeResponse {
+  Message?: string,
   Transcript: {
     Results: {
-      Alternatives:  {
+      Alternatives: {
         Items: {
           Content: string
           EndTime: number

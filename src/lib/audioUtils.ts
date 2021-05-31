@@ -1,6 +1,15 @@
+import {createPipe, pipe} from 'remeda'
+import {EventStreamMarshaller} from '@aws-sdk/eventstream-marshaller'
+import {fromUtf8, toUtf8} from '@aws-sdk/util-utf8-node'
+import {when} from 'ramda'
+import {toRaw} from 'microphone-stream'
+import {getAudioEventMessage} from './awsV4'
+
 const inputSampleRate = 44100
 
-export function pcmEncode (input: Float32Array) {
+const eventStreamMarshaller = new EventStreamMarshaller(toUtf8, fromUtf8)
+
+export function pcmEncode(input: Float32Array) {
   var offset = 0
   var buffer = new ArrayBuffer(input.length * 2)
   var view = new DataView(buffer)
@@ -11,7 +20,7 @@ export function pcmEncode (input: Float32Array) {
   return buffer
 }
 
-export function downsampleBuffer ({ buffer, outputSampleRate = 16000 }: { buffer: Float32Array, outputSampleRate: number }) {
+export function downsampleBuffer({buffer, outputSampleRate = 16000}: {buffer: Float32Array, outputSampleRate: number}) {
   if (outputSampleRate === inputSampleRate) {
     return buffer
   }
@@ -35,3 +44,22 @@ export function downsampleBuffer ({ buffer, outputSampleRate = 16000 }: { buffer
   }
   return result
 }
+
+export function convertAudioToBinaryMessage(audioChunk: Buffer, sampleRate: number): Uint8Array {
+  return pipe(
+    audioChunk,
+    when<Uint8Array, Uint8Array>(Boolean, createPipe(
+      toRaw,
+      // downsample and convert the raw audio bytes to PCM
+      (buffer: Float32Array) => downsampleBuffer({buffer, outputSampleRate: sampleRate}),
+      pcmEncode,
+      // @ts-ignore
+      Buffer,
+      // add the right JSON headers and structure to the message
+      getAudioEventMessage,
+      // convert the JSON object + headers into a binary event stream message
+      eventStreamMarshaller.marshall.bind(eventStreamMarshaller)
+    ))
+  )
+}
+

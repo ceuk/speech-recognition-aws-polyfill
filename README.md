@@ -83,7 +83,7 @@ The recognizer will stop capturing if it doesn't detect speech for a period. You
 |-------------------|-----------|
 | `lang`            |    Yes    |
 | `grammars`        |     No    |
-| `continuous`      |     No    |
+| `continuous`      |     Yes    |
 | `interimResults`  |     No    |
 | `maxAlternatives` |     No    |
 | `serviceURI`      |     No    |

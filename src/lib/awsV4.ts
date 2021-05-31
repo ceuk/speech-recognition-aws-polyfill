@@ -1,7 +1,16 @@
-// Copied from https://github.com/department-stockholm/aws-signature-v4
-// and fixed the sorting of query parameters by using 'query-string' package instead of 'querystring'
+// forked from from https://github.com/department-stockholm/aws-signature-v4 with modifications
 import crypto from 'crypto-browserify'
 import querystring from 'query-string'
+import {CognitoIdentityCredentials, config as awsConfig, Credentials} from 'aws-sdk'
+import {when} from 'ramda'
+import {createPipe, pipe} from 'remeda'
+import {Config} from '../types/shared'
+import {downsampleBuffer, pcmEncode} from './audioUtils'
+import {toRaw} from 'microphone-stream'
+import {EventStreamMarshaller} from '@aws-sdk/eventstream-marshaller'
+import {fromUtf8, toUtf8} from '@aws-sdk/util-utf8-node'
+
+const eventStreamMarshaller = new EventStreamMarshaller(toUtf8, fromUtf8)
 
 interface Params {
   [key: string]: any
@@ -22,7 +31,49 @@ interface AWSOptions {
   query: string
   key: string
   sessionToken?: string
-  secret: string 
+  secret: string
+}
+
+export const getCredentials = async ({IdentityPoolId, region}: Pick<Config, "IdentityPoolId" | "region">) => {
+  awsConfig.region = region
+  awsConfig.credentials = new CognitoIdentityCredentials({IdentityPoolId})
+  await (awsConfig.credentials as Credentials).getPromise()
+  return awsConfig.credentials
+}
+
+export function getAudioEventMessage(buffer: Buffer) {
+  // wrap the audio data in a JSON envelope
+  return {
+    headers: {
+      ':message-type': {
+        type: 'string',
+        value: 'event'
+      },
+      ':event-type': {
+        type: 'string',
+        value: 'AudioEvent'
+      }
+    },
+    body: buffer
+  }
+}
+
+export function convertAudioToBinaryMessage(audioChunk: Buffer, sampleRate: number): Uint8Array {
+  return pipe(
+    audioChunk,
+    when<Uint8Array, Uint8Array>(Boolean, createPipe(
+      toRaw,
+      // downsample and convert the raw audio bytes to PCM
+      (buffer: Float32Array) => downsampleBuffer({buffer, outputSampleRate: sampleRate}),
+      pcmEncode,
+      // @ts-ignore
+      Buffer,
+      // add the right JSON headers and structure to the message
+      getAudioEventMessage,
+      // convert the JSON object + headers into a binary event stream message
+      eventStreamMarshaller.marshall.bind(eventStreamMarshaller)
+    ))
+  )
 }
 
 export const createCanonicalQueryString = function (params: Params) {
@@ -66,7 +117,7 @@ export const createSignature = function (secret: string, time: number, region: s
 
 export const createPresignedS3URL = function (name: string, options: AWSOptions) {
   if (!options?.bucket) throw new Error('S3 Bucket not provided')
-    options.method = options.method || 'GET'
+  options.method = options.method || 'GET'
   return createPresignedURL(
     options.method,
     options.bucket + '.s3.amazonaws.com',
@@ -116,23 +167,23 @@ export const createPresignedURL = function (method: string, host: string, path: 
   return options.protocol + '://' + host + path + '?' + querystring.stringify(query)
 }
 
-function toTime (time: number) {
+function toTime(time: number) {
   // eslint-disable-next-line no-useless-escape
   return new Date(time).toISOString().replace(/[:\-]|\.\d{3}/g, '')
 }
 
-function toDate (time: number) {
+function toDate(time: number) {
   return toTime(time).slice(0, 8)
 }
 
-function hmac (key: string, string: string, encoding?: string) {
+function hmac(key: string, string: string, encoding?: string) {
   return crypto.createHmac('sha256', key)
-  .update(string, 'utf8')
-  .digest(encoding)
+    .update(string, 'utf8')
+    .digest(encoding)
 }
 
-function hash (string: string, encoding?: string) {
+function hash(string: string, encoding?: string) {
   return crypto.createHash('sha256')
-  .update(string, 'utf8')
-  .digest(encoding)
+    .update(string, 'utf8')
+    .digest(encoding)
 }

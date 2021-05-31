@@ -1,5 +1,5 @@
 import {equals, reject, concat} from 'remeda';
-import { Listeners, ListenerCallback, AWSSpeechRecognitionEvent } from '../types/shared'
+import {Listeners, ListenerCallback, AWSSpeechRecognitionEvent} from '../types/shared'
 
 export class CustomEventTarget {
   listeners: Listeners = {}
@@ -15,7 +15,7 @@ export class CustomEventTarget {
   }
 
   dispatchEvent(e: Event | AWSSpeechRecognitionEvent) {
-    if (!(e.type in this.listeners)) return true 
+    if (!(e.type in this.listeners)) return true
     this.listeners[e.type].forEach((fn: ListenerCallback) => fn(e))
 
     return !e.defaultPrevented;
