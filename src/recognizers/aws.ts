@@ -142,7 +142,9 @@ class AWSRecognizer extends CustomEventTarget implements SpeechRecognition {
       MicStream.setStream(mediaStream)
       this.streamAudioToWebSocket()
     } catch (err) {
-      this.emitError(err)
+      if (err instanceof Error) {
+        this.emitError(err)
+      }
     }
   }
 
@@ -205,7 +207,9 @@ class AWSRecognizer extends CustomEventTarget implements SpeechRecognition {
         this.handleSocketMessages()
       }
     } catch (error) {
-      this.emitError(error)
+      if (error instanceof Error) {
+        this.emitError(error)
+      }
     }
   }
 
