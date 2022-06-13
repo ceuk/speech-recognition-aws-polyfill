@@ -10,8 +10,7 @@ import Connection from '../lib/Connection'
 import {CustomEventTarget} from '../lib/CustomEventTarget'
 import MicStream from '../lib/MicStream'
 import {convertAudioToBinaryMessage} from '../lib/audioUtils'
-import {AWSSpeechRecognitionEvent, AWSTranscribeResponse, Config, ListenerCallback} from '../types/shared'
-import { SpeechRecognition, SpeechRecognitionClass } from 'src/types/SpeechRecognition'
+import {AWSSpeechRecognitionEvent, AWSTranscribeResponse, Config, ListenerCallback, SpeechRecognitionClass} from '../types/shared'
 
 type requiredConfigs = Pick<Config, "region" | "IdentityPoolId">
 type optionalConfigs = Omit<Config, "region" | "IdentityPoolId">

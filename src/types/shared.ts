@@ -51,3 +51,7 @@ export interface AWSTranscribeResponse {
     }[]
   }
 }
+
+export interface SpeechRecognitionClass {
+  new (): SpeechRecognition
+}
