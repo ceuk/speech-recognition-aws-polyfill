@@ -10,7 +10,7 @@ import Connection from '../lib/Connection'
 import {CustomEventTarget} from '../lib/CustomEventTarget'
 import MicStream from '../lib/MicStream'
 import {convertAudioToBinaryMessage} from '../lib/audioUtils'
-import {AWSSpeechRecognitionEvent, AWSTranscribeResponse, Config, ListenerCallback, SpeechRecognitionClass} from '../types/shared'
+import {AWSSpeechRecognitionEvent, AWSTranscribeResponse, Config, ListenerCallback} from '../types/shared'
 
 type requiredConfigs = Pick<Config, "region" | "IdentityPoolId">
 type optionalConfigs = Omit<Config, "region" | "IdentityPoolId">
@@ -36,7 +36,7 @@ class AWSRecognizer extends CustomEventTarget implements SpeechRecognition {
   public continuous: boolean
 
   /** a proxy for new AWSRecognizer(config) */
-  static create(config: configArgs): SpeechRecognitionClass {
+  static create(config: configArgs): typeof SpeechRecognition {
     return class AWSRecognizerWithConfig extends AWSRecognizer {
       constructor() {
         super(config)
