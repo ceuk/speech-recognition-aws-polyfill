@@ -6,12 +6,10 @@ const w = window || {}
 const BrowserRecognizer = w.SpeechRecognition || w.webkitSpeechRecognition
 const browserSupportsSpeechRecognition = BrowserRecognizer && new BrowserRecognizer()
 
-const BrowserRecognizerWithCreate = Object.assign(BrowserRecognizer, {
-  create: (config: configArgs) => BrowserRecognizer
-})
-
 const recognizer = browserSupportsSpeechRecognition
-  ? BrowserRecognizerWithCreate
+  ? Object.assign(BrowserRecognizer, {
+      create: (config: configArgs) => BrowserRecognizer
+    })
   : AWSRecognizer
 
 //@ts-ignore
