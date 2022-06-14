@@ -14,7 +14,7 @@ import {AWSSpeechRecognitionEvent, AWSTranscribeResponse, Config, ListenerCallba
 
 type requiredConfigs = Pick<Config, "region" | "IdentityPoolId">
 type optionalConfigs = Omit<Config, "region" | "IdentityPoolId">
-type configArgs = requiredConfigs & Partial<optionalConfigs>
+export type configArgs = requiredConfigs & Partial<optionalConfigs>
 
 class AWSRecognizer extends CustomEventTarget implements SpeechRecognition {
   /** in case future recognizers are built in the future (e.g. Azure) */
