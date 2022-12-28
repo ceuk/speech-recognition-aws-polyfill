@@ -14,7 +14,7 @@ import {AWSSpeechRecognitionEvent, AWSTranscribeResponse, Config, ListenerCallba
 
 type requiredConfigs = Pick<Config, "region" | "IdentityPoolId">
 type optionalConfigs = Omit<Config, "region" | "IdentityPoolId">
-type configArgs = requiredConfigs & Partial<optionalConfigs>
+export type configArgs = requiredConfigs & Partial<optionalConfigs>
 
 class AWSRecognizer extends CustomEventTarget implements SpeechRecognition {
   /** in case future recognizers are built in the future (e.g. Azure) */
@@ -36,8 +36,12 @@ class AWSRecognizer extends CustomEventTarget implements SpeechRecognition {
   public continuous: boolean
 
   /** a proxy for new AWSRecognizer(config) */
-  static create(config: Config) {
-    () => new AWSRecognizer(config)
+  static create(config: configArgs): typeof SpeechRecognition {
+    return class AWSRecognizerWithConfig extends AWSRecognizer {
+      constructor() {
+        super(config)
+      }
+    }
   }
 
   constructor(config: configArgs) {
@@ -138,7 +142,9 @@ class AWSRecognizer extends CustomEventTarget implements SpeechRecognition {
       MicStream.setStream(mediaStream)
       this.streamAudioToWebSocket()
     } catch (err) {
-      this.emitError(err)
+      if (err instanceof Error) {
+        this.emitError(err)
+      }
     }
   }
 
@@ -201,7 +207,9 @@ class AWSRecognizer extends CustomEventTarget implements SpeechRecognition {
         this.handleSocketMessages()
       }
     } catch (error) {
-      this.emitError(error)
+      if (error instanceof Error) {
+        this.emitError(error)
+      }
     }
   }
 

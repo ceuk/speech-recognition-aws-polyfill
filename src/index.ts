@@ -1,14 +1,13 @@
 import './lib/bufferPolyfill'
-import AWSRecognizer from './recognizers/aws'
+import AWSRecognizer, { configArgs } from './recognizers/aws'
 
 const w = window || {}
-console.log("HELLO")
 
-//@ts-ignore
 const BrowserRecognizer = w.SpeechRecognition || w.webkitSpeechRecognition
+const browserSupportsSpeechRecognition = BrowserRecognizer && new BrowserRecognizer()
 
-const recognizer = BrowserRecognizer && new BrowserRecognizer()
-  ? BrowserRecognizer
+const recognizer = browserSupportsSpeechRecognition
+  ? { ...BrowserRecognizer, create: (_: configArgs) => BrowserRecognizer }
   : AWSRecognizer
 
 //@ts-ignore
