@@ -29,10 +29,10 @@ class AWSRecognizer extends CustomEventTarget implements SpeechRecognition {
   /** if the library is currently capturing/transcribing audio */
   public listening = false
 
-  /** the langage (default en-US) */
+  /** the language (default en-US) */
   public lang: Config['lang']
 
-  /** whether to continously transribe audio until .stop() is called */
+  /** whether to continuously transcribe audio until `.stop()` is called */
   public continuous: boolean
 
   /** a proxy for new AWSRecognizer(config) */
