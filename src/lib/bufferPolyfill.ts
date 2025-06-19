@@ -1,7 +1,7 @@
 import { Buffer } from 'buffer'
 
-// @ts-ignore
-if (window && typeof window.Buffer === 'undefined') {
-  // @ts-ignore
-  window.Buffer = Buffer
+// ensure the Buffer polyfill only runs in browsers
+if (typeof window !== 'undefined' && typeof (window as any).Buffer === 'undefined') {
+  // @ts-ignore - window is defined in browsers
+  (window as any).Buffer = Buffer
 }

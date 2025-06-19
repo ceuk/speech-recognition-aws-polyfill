@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Speech Recognition AWS Polyfill Demo</title>
+</head>
+<body>
+  <button id="startBtn">Start</button>
+  <p id="output"></p>
+  <script src="https://unpkg.com/speech-recognition-aws-polyfill"></script>
+  <script>
+    const recognition = new window.SpeechRecognitionPolyfill({
+      IdentityPoolId: 'YOUR_IDENTITY_POOL_ID',
+      region: 'YOUR_REGION'
+    });
+    recognition.onresult = evt => {
+      document.getElementById('output').textContent = evt.results[0][0].transcript;
+    };
+    recognition.onerror = console.error;
+
+    document.getElementById('startBtn').addEventListener('click', () => {
+      recognition.start();
+    });
+  </script>
+</body>
+</html>
