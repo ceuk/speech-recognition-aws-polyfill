@@ -231,7 +231,7 @@ class AWSRecognizer extends CustomEventTarget implements SpeechRecognition {
       connection.onmessage = createPipe(
         prop('data'),
         Buffer.from,
-        (buffer: Buffer) => eventStreamMarshaller.unmarshall(buffer) as MessageEvent,
+        (buffer: Buffer) => eventStreamMarshaller.unmarshall(buffer),
         ifElse(
           pathEq(['headers', ':message-type', 'value'], 'event'),
           // valid response
