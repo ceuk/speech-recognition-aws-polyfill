@@ -22,7 +22,8 @@
     "strictNullChecks": true,
     "allowSyntheticDefaultImports": true,
     "strictPropertyInitialization": false,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true
   },
   "include": [
     "src",

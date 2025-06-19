@@ -72,7 +72,7 @@ class AWSRecognizer extends CustomEventTarget implements SpeechRecognition {
   /** stop capturing and return any final transcriptions */
   public stop() {
     MicStream.getInstance()?.end()
-    Connection.getInstance()?.close()
+    Connection.close()
     this.listening = false
     this.dispatchEvent(new Event('audioend'))
   }
@@ -81,7 +81,7 @@ class AWSRecognizer extends CustomEventTarget implements SpeechRecognition {
   public abort() {
     if (this.listening) {
       MicStream.getInstance()?.end()
-      Connection.getInstance()?.close()
+      Connection.close()
       this.listening = false
       this.dispatchEvent(new Event('audioend'))
     }
@@ -231,7 +231,7 @@ class AWSRecognizer extends CustomEventTarget implements SpeechRecognition {
       connection.onmessage = createPipe(
         prop('data'),
         Buffer.from,
-        (buffer: Buffer) => eventStreamMarshaller.unmarshall(buffer) as MessageEvent,
+        (buffer: Buffer) => eventStreamMarshaller.unmarshall(buffer),
         ifElse(
           pathEq(['headers', ':message-type', 'value'], 'event'),
           // valid response
@@ -248,7 +248,13 @@ class AWSRecognizer extends CustomEventTarget implements SpeechRecognition {
               // emit the transcription result
               createPipe(
                 pathOr('', [0, 'Alternatives', 0, 'Transcript']),
-                decodeURIComponent,
+                (t: string) => {
+                  try {
+                    return decodeURIComponent(t)
+                  } catch {
+                    return t
+                  }
+                },
                 this.emitResult.bind(this)
               )
             )

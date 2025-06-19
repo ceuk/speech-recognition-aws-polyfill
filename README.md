@@ -137,6 +137,12 @@ recognition.onresult = function(event) {
 recognition.onerror = console.error
 ```
 
+## Demo
+
+Check the [examples](./examples) folder for a simple HTML page that shows how to
+use the polyfill. Replace the placeholder AWS credentials with your own before
+running the example.
+
 ## Roadmap
 
 * Further increase parity between the two implementations by better supporting additional options and events.

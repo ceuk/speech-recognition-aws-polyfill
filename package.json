@@ -3,6 +3,10 @@
   "version": "0.3.0",
   "description": "Polyfill for the SpeechRecognition browser API using AWS Transcribe",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "test": "jest",
     "build": "webpack",
