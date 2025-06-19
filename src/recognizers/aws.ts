@@ -120,14 +120,14 @@ class AWSRecognizer extends CustomEventTarget implements SpeechRecognition {
 
   /** dispatch events related to sound start */
   private emitSoundStart() {
-    this.dispatchEvent(new ErrorEvent('speechstart'))
-    this.dispatchEvent(new ErrorEvent('soundstart'))
+    this.dispatchEvent(new Event('speechstart'))
+    this.dispatchEvent(new Event('soundstart'))
   }
 
   /** dispatch events realated to sound end */
   private emitSoundEnd() {
-    this.dispatchEvent(new ErrorEvent('speechend'))
-    this.dispatchEvent(new ErrorEvent('soundend'))
+    this.dispatchEvent(new Event('speechend'))
+    this.dispatchEvent(new Event('soundend'))
   }
 
   /** authenticate and connect to AWS Transcribe */

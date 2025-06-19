@@ -24,7 +24,7 @@ class MicStream extends MicrophoneStream {
   }
 
   public static setStream(mediaStream: MediaStream) {
-    if (MicStream.mediaStrem && MicStream.mediaStream.id !== mediaStream.id) {
+    if (MicStream.mediaStream && MicStream.mediaStream.id !== mediaStream.id) {
       MicStream.instance?.stop();
       MicStream.instance = new MicStream(mediaStream);
     }
